@@ -7,17 +7,10 @@ Case sahipleri, bazı temel komutların yetkileri ile oynamış ve işlevsiz hal
 ![image](https://github.com/oihtiyar/case-i-need-to-solve/assets/50960588/b76d5464-0e2c-4ff6-803a-3210a296154e)
 Görselde görebileceğiniz üzere, Case-A'da bize bir uygulama seçmemizi ve kurulum adımlarına bağlı kalarak Case'i çözmeyi beklemektedirler.
 
-Benim tercihim, mongoDB cluster ile ilerlemektir. İlk olarak, Case sunucusuna Ansible ve Docker kurulumlarını yapmamız gerekmektedir. İlgili kurulumları aşağıdaki komut setleri ile gerçekleştiriyorum:
+Benim tercihim, mongoDB cluster ile ilerlemektir. İlk olarak, Case sunucusuna Ansible ve Docker kurulumlarını yapmamız gerekmektedir. İlgili kurulumları gerçekleştirdikten sonra,
+MongoDB cluster kurulumuna başlıyorum. 3 node'lu, 1 tane primary ve diğerlerinin secondary olacak şekilde bir mimari tasarladım. İlk başlarda bu konuda zorluklar yaşadım çünkü replica set tanımlamalarında sık sık hata alıyordum. Yaptığım araştırmalar sonucunda, mongo:6 veya mongo:7 sürümleri ile ve ayrı bir network oluşturmak ve ortak bir data volume ile daha ilerlemenin daha sağlıklı olacağını fark ettim. 
 
-yum install ansible
-sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install docker-ce docker-ce-cli containerd.io
-sudo systemctl start docker
-sudo systemctl enable docker
-yum install ansible
-
-Bir sonraki önceliğim, MongoDB cluster kurmaktır. 3 node'lu, 1 tane primary ve diğerlerinin secondary olacak şekilde bir mimari tasarladım. İlk başlarda bu konuda zorluklar yaşadım çünkü replica set tanımlamalarında sık sık hata alıyordum. Yaptığım araştırmalar sonucunda, mongo:6 veya mongo:7 sürümleri ile ve ayrı bir network oluşturarak ilerlemenin daha sağlıklı olacağını fark ettim. Docker'in resmi sitesinden mongo:6 kararlı sürümüne ait Dockerfile'ı kullanmaya karar verdim. Değişkenleri tanımlamak için bir .sh dosyası oluşturdum. Bu image'i oluşturduktan sonra, Docker'ı kullanarak 3 container'ı da ayağa kaldırdım. Tüm bunlar tamamlandıktan sonra primary makineye erişerek replika set tanımlamalarını yaptım ve bir DB admin kullanıcısı oluşturdum. Daha sonra replika set'in durumunu kontrol ettim ve her şeyin istediğim gibi olduğunu gördüm. Tüm bu adımları Ansible ile otomatikleştirmek için Dockerfile dosyamı yeniden düzenledim ve entrypoint.sh dosyasına olan bağımlılığı kaldırmaya karar verdim. mongo-cluster-playbook.yml isminde bir playbook oluşturdum ve bu, 3 adet mongo container'ını sırayla ayağa kaldıracak şekilde düzenledim.
+Docker'in resmi sitesinden mongo:6 kararlı sürümüne ait Dockerfile'ı kullanmaya karar verdim. Değişkenleri tanımlamak için bir .sh dosyası oluşturdum. Bu image'i oluşturduktan sonra, Docker'ı kullanarak 3 container'ı da ayağa kaldırdım. Tüm bunlar tamamlandıktan sonra primary makineye erişerek replika set tanımlamalarını yaptım ve bir DB admin kullanıcısı oluşturdum. Daha sonra replika set'in durumunu kontrol ettim ve her şeyin istediğim gibi olduğunu gördüm. Tüm bu adımları Ansible ile otomatikleştirmek için Dockerfile dosyamı yeniden düzenledim ve entrypoint.sh dosyasına olan bağımlılığı kaldırmaya karar verdim. mongo-cluster-playbook.yml isminde bir playbook oluşturdum ve bu, 3 adet mongo container'ını sırayla ayağa kaldıracak şekilde düzenledim.
 
 Replica set tanımlamalarını playbook'a henüz aktaramadım, ancak umuyorum ki kısa sürede bunu da başaracağım.
 
