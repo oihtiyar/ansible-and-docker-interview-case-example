@@ -1,5 +1,5 @@
 ---
-- name: Manage Docker container with Ansible
+- name: Manage Docker containers and initialize MongoDB replica set
   hosts: localhost
   gather_facts: false
   vars:
@@ -16,9 +16,7 @@
           - my_data:/data
         networks:
           - name: mongonetwork
-      environment:
-        MONGO_INITDB_REPLICA_SET: myReplicaSet
-        MONGO_INITDB_BIND_IP: localhost,node1
+        command: mongod --replSet myReplicaSet --bind_ip localhost,node1
     - name: Start Docker container node2
       docker_container:
         name: node2
@@ -30,9 +28,7 @@
           - my_data:/data
         networks:
           - name: mongonetwork
-      environment:
-        MONGO_INITDB_REPLICA_SET: myReplicaSet
-        MONGO_INITDB_BIND_IP: localhost,node1
+        command: mongod --replSet myReplicaSet --bind_ip localhost,node2
     - name: Start Docker container node3
       docker_container:
         name: node3
@@ -44,22 +40,11 @@
           - my_data:/data
         networks:
           - name: mongonetwork
-      environment:
-        MONGO_INITDB_REPLICA_SET: myReplicaSet
-        MONGO_INITDB_BIND_IP: localhost,node1
-#    - name: Wait for MongoDB to start on each node
-#      wait_for:
-#        host: "{{ item }}"
-#        port: 27017
-#        state: started
-#        timeout: 60
-#      loop:
-#        - node1
-#        - node2
-#        - node3
-#    - name: Configure MongoDB replica set
-#      command: >
-#        docker exec -t node1 mongosh --eval "rs.initiate({_id: 'myReplicaSet',
-#        members: [{ _id: 0, host: 'localhost:27017' }, { _id: 1, host:
-#        'localhost:27018' }, { _id: 2, host: 'localhost:27019' }]})"
-#      ignore_errors: yes
+        command: mongod --replSet myReplicaSet --bind_ip localhost,node3
+    - name: Initialize MongoDB replica set
+      community.mongodb.mongodb_replicaset:
+        replica_set: myReplicaSet
+        members:
+          - host: node1:27017
+          - host: node2:27017
+          - host: node3:27017
