@@ -12,6 +12,10 @@ MongoDB cluster kurulumuna başlıyorum. 3 node'lu, 1 tane primary ve diğerleri
 
 Docker'in resmi sitesinden mongo:7 sürümüne ait specleri kontrol ettim ve buna uygun şekilde bir Dockerfile oluşturdum. Değişkenleri tanımlamak için bir .sh dosyası oluşturdum. Bu image'i oluşturduktan sonra, Docker'ı kullanarak 3 container'ı da ayağa kaldırdım. Kurulum tamamlandıktan sonra primary makineye erişerek replika set tanımlamalarını yaptım ve bir DB admin kullanıcısı oluşturdum. Daha sonra replika set'in durumunu kontrol ettim ve her şeyin istediğim gibi olduğunu gördüm. Tüm bu adımları Ansible ile otomatikleştirmek için Dockerfile dosyamı yeniden düzenledim ve entrypoint.sh dosyasına olan bağımlılığı kaldırmaya karar verdim. mongo-cluster-playbook.yml isminde bir playbook oluşturdum ve bu, 3 adet mongo container'ını sırayla ayağa kaldıracak şekilde düzenledim.
 
+son olarak terminal satırına node1 veya diğer node'lara erişim için isimlerini yazdığımızda direk container içine erişebilmek için bash üzerinde gerekli tanımlamları yapıyoruz.
+![image](https://github.com/oihtiyar/case-i-need-to-solve/assets/50960588/5688c130-0a34-4c7c-99b0-8cba439b1068)
+
+
 Case-B için ise, python:3.9-slim versiyonunu kullanarak bir image oluşturdum. Dockerfile içerisine, container ayağa kalktığında çalışacak bir komut ekledim. Böylece, binance_exchange_rates.py dosyasını okuyarak script çalıştıktan sonra her 5 dakikada bir Binance API'sinden aldığı verileri exchange_rates.txt olarak dışarıya yazacak şekilde tanımladım.
 
 Bu süreçte özellikle Python kısmında yapay zeka desteği aldım. İlk tasarladığım versiyon, script'in saat aralıklarını doğru şekilde alamıyordu; örneğin, 12:05 veya 12:10 gibi. Şimdi ise script ne zaman çalışırsa o zaman verileri alıp getiriyor.
